@@ -1,2 +1,32 @@
 *.class
 *.log
+
+# Simple Build Tool (SBT) Ignore files
+# http://www.scala-sbt.org/release/docs/Getting-Started/Directories.html#configuring-version-control
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.history
+.cache
+.lib/
+
+## VSCode files to ignore
+.vscode
+.vscode/*
+
+## scala specific files to ignore
+*.class
+project/project/
+_site/
+.bsp/
+
+## Metals files to ignore
+.metals/
+.bloop/
+project/metals.sbt
+
+## Mac
+.DS_Store

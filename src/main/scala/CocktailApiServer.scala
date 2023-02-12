@@ -13,10 +13,11 @@ object CocktailApiServer {
   def run[F[_]: Async]: F[Nothing] = {
     for {
       client <- EmberClientBuilder.default[F].build
-      helloWorldAlg = HelloWorld.impl[F]
+      cocktailService = CocktailService.impl[F]
 
-      httpApp =
-        CocktailApiRoutes.helloWorldRoutes[F](helloWorldAlg).orNotFound
+      httpApp = CocktailApiRoutes
+        .cocktailRoutes[F](cocktailService)
+        .orNotFound
 
       finalHttpApp = Logger.httpApp(true, true)(httpApp)
 

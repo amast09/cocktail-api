@@ -1,5 +1,6 @@
 *.class
 *.log
+*Scratch.worksheet.sc
 
 # Simple Build Tool (SBT) Ignore files
 # http://www.scala-sbt.org/release/docs/Getting-Started/Directories.html#configuring-version-control

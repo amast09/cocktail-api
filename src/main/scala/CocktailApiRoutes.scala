@@ -7,12 +7,12 @@ import org.http4s.dsl.Http4sDsl
 
 object CocktailApiRoutes {
 
-  def cocktailRoutes[F[_]: Sync](H: HelloWorld[F]): HttpRoutes[F] = {
+  def cocktailRoutes[F[_]: Sync](H: CocktailService[F]): HttpRoutes[F] = {
     val dsl = new Http4sDsl[F] {}
     import dsl._
     HttpRoutes.of[F] { case GET -> Root / "hello" / name =>
       for {
-        greeting <- H.hello(HelloWorld.Name(name))
+        greeting <- H.hello(CocktailService.Name(name))
         resp     <- Ok(greeting)
       } yield resp
     }

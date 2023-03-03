@@ -26,7 +26,7 @@ case class InvalidAmountSpecification(ingredient: RawCocktailIngredient) extends
 
 final case class RawCocktailIngredient(ingredient: String, unit: String, amount: Option[Double]) {
   def toIngredient(): Either[InvalidIngredient, CocktailIngredient] =
-    parseAmount
+    parseAmount()
       .map(amount => CocktailIngredient(Ingredient(this.ingredient), amount))
 
   def parseAmount(): Either[InvalidIngredient, Amount] = {
@@ -75,9 +75,9 @@ final case class RawCocktail(name: String, glass: String, ingredients: NonEmptyL
   def toCocktail(): Validated[NonEmptyList[RawCocktailParserError], Cocktail] = {
     val maybeIngredients: Validated[NonEmptyList[RawCocktailParserError], NonEmptyList[CocktailIngredient]] =
       this.ingredients
-        .traverse(rawIngredient => rawIngredient.toIngredient.toValidatedNel)
+        .traverse(rawIngredient => rawIngredient.toIngredient().toValidatedNel)
 
-    val maybeGlass: Validated[NonEmptyList[RawCocktailParserError], Glass] = this.maybeGlass.toValidatedNel
+    val maybeGlass: Validated[NonEmptyList[RawCocktailParserError], Glass] = this.maybeGlass().toValidatedNel
 
     (maybeIngredients, maybeGlass) match {
       case (Validated.Valid(ingredients), Validated.Valid(glass)) =>
@@ -125,8 +125,10 @@ object RawCocktailData {
 
         maybeRawCocktails.toValidatedNel match {
           case Validated.Invalid(e)          => Validated.Invalid(e)
-          case Validated.Valid(rawCocktails) => rawCocktails.map(_.toCocktail).sequence
+          case Validated.Valid(rawCocktails) => rawCocktails.map(_.toCocktail()).sequence
         }
       }
   }
 }
+
+// TODO: add tests for the above code

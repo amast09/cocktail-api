@@ -1,15 +1,18 @@
 package cocktail.api
 
 import munit.ScalaCheckSuite
-import munit.FunSuite
+import munit.CatsEffectSuite
+import munit.ScalaCheckEffectSuite
 import org.scalacheck.Prop._
 import org.scalacheck.Gen
 import cats.data.NonEmptyList
 import scala.util.Random
+import cats.effect.IO
+import org.scalacheck.effect.PropF
 
-class CocktailEngineTest extends FunSuite with ScalaCheckSuite {
-  property("getPotentialCocktails returns all the cocktails with their missing ingredients") {
-    forAll(
+class CocktailServiceTest extends CatsEffectSuite with ScalaCheckEffectSuite {
+  test("getPotentialCocktails returns all the cocktails with their missing ingredients") {
+    PropF.forAllF(
       Generators.cocktailGen,
       Generators.nonEmptyListGen(Generators.cocktailIngredientGen),
       Generators.nonEmptyListGen(Generators.cocktailIngredientGen)
@@ -23,19 +26,21 @@ class CocktailEngineTest extends FunSuite with ScalaCheckSuite {
           NonEmptyList.fromList(Random.shuffle(ingredientsMissing.toList ++ ingredientsPresent.toList)).get
         val cocktail = baseCocktail.copy(ingredients = allIngredientsForCocktail)
 
-        val actualPotentialCocktails =
-          CocktailEngine(List(cocktail)).getPotentialCocktails(ingredientsPresent.map(_.ingredient).toList)
+        val potentialCocktailsIO = CocktailServiceFromList(List(cocktail))
+          .getPotentialCocktails(ingredientsPresent.map(_.ingredient).toList)
 
-        assertEquals(actualPotentialCocktails.map(_.cocktail), List(cocktail))
-        assertEquals(
-          actualPotentialCocktails.flatMap(_.missingIngredients).toSet,
-          ingredientsMissing.map(_.ingredient).toList.toSet
-        )
+        potentialCocktailsIO.map { potentialCocktails =>
+          assertEquals(potentialCocktails.map(_.cocktail), List(cocktail))
+          assertEquals(
+            potentialCocktails.flatMap(_.missingIngredients).toSet,
+            ingredientsMissing.map(_.ingredient).toList.toSet
+          )
+        }
     }
   }
 
-  property("getPotentialCocktails sorts the cocktails by number of missing ingredients") {
-    forAll(
+  test("getPotentialCocktails sorts the cocktails by number of missing ingredients") {
+    PropF.forAllF(
       Generators.cocktailGen,
       Generators.cocktailGen,
       Generators.cocktailGen,
@@ -58,11 +63,11 @@ class CocktailEngineTest extends FunSuite with ScalaCheckSuite {
 
         val expectedOrder = List(cocktail1.name, cocktail2.name, cocktail3.name)
 
-        val result = CocktailEngine(cocktails).getPotentialCocktails(List())
+        val potentialCocktailsIO = CocktailServiceFromList(cocktails).getPotentialCocktails(List())
 
-        val actualOrder = result.map(_.cocktail.name)
-
-        assertEquals(expectedOrder, actualOrder)
+        potentialCocktailsIO.map { potentialCocktails =>
+          assertEquals(potentialCocktails.map(_.cocktail.name), expectedOrder)
+        }
     }
   }
 }

@@ -31,3 +31,5 @@ project/metals.sbt
 
 ## Mac
 .DS_Store
+
+web/elm-stuff/

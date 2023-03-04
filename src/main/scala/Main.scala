@@ -1,9 +1,6 @@
 package cocktail.api
 
 import cats.effect.{IO, IOApp}
-import io.circe._
-import io.circe.parser._
-import cats.effect.unsafe.implicits._
 import com.comcast.ip4s._
 import org.http4s.ember.server.EmberServerBuilder
 import cats.data.Validated.Invalid

@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
 scalacOptions ++= Seq(
   "-deprecation",
   "-unchecked",
+  "-Ywarn-unused:imports",
   "-Ywarn-value-discard",
   "-Wconf:cat=unchecked:error",
   "-Xfatal-warnings"

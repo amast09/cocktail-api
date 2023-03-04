@@ -1,13 +1,9 @@
 package cocktail.api
 
-import munit.ScalaCheckSuite
 import munit.CatsEffectSuite
 import munit.ScalaCheckEffectSuite
-import org.scalacheck.Prop._
-import org.scalacheck.Gen
 import cats.data.NonEmptyList
 import scala.util.Random
-import cats.effect.IO
 import org.scalacheck.effect.PropF
 
 class CocktailServiceTest extends CatsEffectSuite with ScalaCheckEffectSuite {

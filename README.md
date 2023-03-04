@@ -1,2 +1,3 @@
-# cocktail-api
-An API to determine cocktail possibilities based on available ingredients
+## Mixologist
+
+Mono repository for mixologist.app

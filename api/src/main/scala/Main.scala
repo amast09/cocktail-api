@@ -16,7 +16,7 @@ object Main extends IOApp.Simple {
         IO.pure(())
       case Valid(cocktailList) =>
         val cocktailService = CocktailServiceFromList(cocktailList)
-        val httpRoutes = CocktailApiRoutes
+        val httpRoutes = MixologistApiRoutes
           .cocktailRoutes(cocktailService)
           .orNotFound
 

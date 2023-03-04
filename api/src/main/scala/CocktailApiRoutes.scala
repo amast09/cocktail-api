@@ -8,7 +8,8 @@ import io.circe.syntax._
 
 import org.http4s.circe._
 
-object CocktailApiRoutes {
+// TODO: Rename to mixologist-api
+object MixologistApiRoutes {
 
   case class PotentialCocktailsJsonPayload(ingredients: List[Ingredient])
   implicit val decoder = jsonOf[IO, PotentialCocktailsJsonPayload]

@@ -1,5 +1,5 @@
 scalaVersion := "2.13.10"
-name         := "cocktail-api"
+name         := "mixologist-api"
 version      := "1.0.0"
 
 val http4sVersion = "0.23.18"

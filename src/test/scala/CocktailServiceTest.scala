@@ -11,6 +11,26 @@ import cats.effect.IO
 import org.scalacheck.effect.PropF
 
 class CocktailServiceTest extends CatsEffectSuite with ScalaCheckEffectSuite {
+  test("getIngredients returns all cocktail ingredients") {
+    PropF.forAllF(
+      Generators.cocktailGen,
+      Generators.cocktailGen
+    ) {
+      (
+        cocktail1: Cocktail,
+        cocktail2: Cocktail
+      ) =>
+        val expectedIngredients =
+          (cocktail1.ingredients ::: cocktail2.ingredients).map(_.ingredient).toList
+        val ingredientsIO = CocktailServiceFromList(List(cocktail1, cocktail2)).getIngredients()
+
+        ingredientsIO.map { actualIngredients =>
+          assertEquals(actualIngredients.length, expectedIngredients.length)
+          assertEquals(actualIngredients.toSet, expectedIngredients.toSet)
+        }
+    }
+  }
+
   test("getPotentialCocktails returns all the cocktails with their missing ingredients") {
     PropF.forAllF(
       Generators.cocktailGen,

@@ -1,31 +1,88 @@
 module Main exposing (main)
 
+import AjaxRequest exposing (AjaxRequest)
 import Browser
-import HelloWorld exposing (helloWorld)
-import Html exposing (Html, div, img)
-import Html.Attributes exposing (src, style)
+import Cocktail exposing (IngredientsResponse, ingredientsResponseDecoder)
+import Html exposing (Html, button, div, text)
+import Html.Events exposing (onClick)
+import Http
+import IngredientCheckbox
 import Msg exposing (Msg(..))
-import VitePluginHelper
+import Set exposing (Set(..))
 
 
-main : Program () Int Msg
+isChecked : Set String -> String -> Bool
+isChecked checkedIngredients candaditeIngredient =
+    Set.member candaditeIngredient checkedIngredients
+
+
+toggleElement : comparable -> Set comparable -> Set comparable
+toggleElement elementToToggle setToToggle =
+    if Set.member elementToToggle setToToggle then
+        Set.remove elementToToggle setToToggle
+
+    else
+        Set.insert elementToToggle setToToggle
+
+
+getIngredients : Cmd Msg
+getIngredients =
+    Http.get
+        { url = "http://localhost:8080/ingredients"
+        , expect = Http.expectJson IngredientsRequestComplete ingredientsResponseDecoder
+        }
+
+
+type alias Model =
+    { ingredientsRequest : AjaxRequest IngredientsResponse
+    , checkedIngredients : Set String
+    }
+
+
+main : Program () Model Msg
 main =
-    Browser.sandbox { init = 0, update = update, view = view }
+    Browser.element { init = init, update = update, subscriptions = subscriptions, view = view }
 
 
-update : Msg -> number -> number
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( { ingredientsRequest = AjaxRequest.Loading, checkedIngredients = Set.empty }, getIngredients )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.none
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
-            model + 1
+        IngredientsRequestRetry ->
+            ( { ingredientsRequest = AjaxRequest.Loading, checkedIngredients = Set.empty }, getIngredients )
 
-        Decrement ->
-            model - 1
+        IngredientsRequestComplete result ->
+            case result of
+                Ok ingredients ->
+                    ( { ingredientsRequest = AjaxRequest.Success ingredients, checkedIngredients = Set.empty }, Cmd.none )
+
+                Err _ ->
+                    ( { ingredientsRequest = AjaxRequest.Failure, checkedIngredients = Set.empty }, Cmd.none )
+
+        ToggleIngredient toggledIngredient ->
+            ( { model | checkedIngredients = toggleElement toggledIngredient.name model.checkedIngredients }, Cmd.none )
 
 
-view : Int -> Html Msg
+view : Model -> Html Msg
 view model =
-    div []
-        [ img [ src <| VitePluginHelper.asset "/src/assets/logo.png", style "width" "300px" ] []
-        , helloWorld model
-        ]
+    case model.ingredientsRequest of
+        AjaxRequest.Failure ->
+            div []
+                [ text "Failed to load ingredients"
+                , button [ onClick IngredientsRequestRetry ] [ text "Try Again!" ]
+                ]
+
+        AjaxRequest.Loading ->
+            text "Loading..."
+
+        AjaxRequest.Success ingredientsResponse ->
+            div [] (List.map (\i -> IngredientCheckbox.component { ingredient = i, isChecked = isChecked model.checkedIngredients i.name, onCheck = ToggleIngredient }) ingredientsResponse.ingredients)

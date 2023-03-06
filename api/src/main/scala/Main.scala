@@ -24,7 +24,7 @@ object Main extends IOApp.Simple {
           .orNotFound
         val serviceWithCors = CORS.policy.withAllowOriginHost(
           Set(
-            Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(8000)),
+            Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(5173)),
             Origin.Host(Uri.Scheme.https, Uri.RegName("mixologist.app"), None)
           )
         )(service)

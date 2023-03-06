@@ -32,4 +32,9 @@ project/metals.sbt
 ## Mac
 .DS_Store
 
-web/elm-stuff/
+# web
+node_modules
+elm-stuff
+dist
+dist-ssr
+*.local

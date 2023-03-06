@@ -12,6 +12,7 @@ libraryDependencies ++= Seq(
   "org.http4s"    %% "http4s-ember-client"     % http4sVersion,
   "org.http4s"    %% "http4s-circe"            % http4sVersion,
   "org.http4s"    %% "http4s-dsl"              % http4sVersion,
+  "org.http4s"    %% "http4s-server"           % http4sVersion,
   "org.typelevel" %% "cats-core"               % "2.9.0",
   "org.typelevel" %% "cats-effect"             % "3.4.8",
   "org.scalameta" %% "munit"                   % "0.7.29"   % Test,

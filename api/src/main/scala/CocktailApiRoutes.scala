@@ -8,11 +8,13 @@ import io.circe.syntax._
 
 import org.http4s.circe._
 
-// TODO: Rename to mixologist-api
 object MixologistApiRoutes {
 
+  case class IngredientsResponse(data: List[Ingredient])
+  implicit val IngredientsResponseDecoder = jsonOf[IO, IngredientsResponse]
+
   case class PotentialCocktailsJsonPayload(ingredients: List[Ingredient])
-  implicit val decoder = jsonOf[IO, PotentialCocktailsJsonPayload]
+  implicit val PotentialCocktailsJsonPayloadDecoder = jsonOf[IO, PotentialCocktailsJsonPayload]
 
   def cocktailRoutes(cocktailService: CocktailService): HttpRoutes[IO] = {
     val dsl = new Http4sDsl[IO] {}
@@ -22,7 +24,7 @@ object MixologistApiRoutes {
       case GET -> Root / "ingredients" =>
         for {
           ingredients <- cocktailService.getIngredients()
-          resp        <- Ok(ingredients.asJson)
+          resp        <- Ok(IngredientsResponse(ingredients).asJson)
         } yield resp
       case req @ POST -> Root / "potential-cocktails" =>
         for {

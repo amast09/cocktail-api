@@ -1,14 +1,10 @@
 module Main exposing (..)
 
--- Press buttons to increment and decrement a counter.
---
--- Read how it works:
---   https://guide.elm-lang.org/architecture/buttons.html
---
-
 import Browser
-import Html exposing (Html, button, div, text)
-import Html.Events exposing (onClick)
+import Html exposing (..)
+import Html.Events exposing (..)
+import Http
+import Json.Decode exposing (Decoder, field, list, string)
 
 
 
@@ -17,39 +13,68 @@ import Html.Events exposing (onClick)
 
 main : Program () Model Msg
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element
+        { init = init
+        , update = update
+        , subscriptions = subscriptions
+        , view = view
+        }
 
 
 
 -- MODEL
 
 
-type alias Model =
-    Int
+type Model
+    = Failure
+    | Loading
+    | Success IngredientsResponse
 
 
-init : Model
-init =
-    0
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( Loading, getIngredients )
 
 
 
 -- UPDATE
 
 
+type alias Ingredient =
+    { name : String }
+
+
+type alias IngredientsResponse =
+    { ingredients : List Ingredient }
+
+
 type Msg
-    = Increment
-    | Decrement
+    = RetryIngredientsRequest
+    | IngredientsRequestComplete (Result Http.Error IngredientsResponse)
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
-            model + 3
+        RetryIngredientsRequest ->
+            ( Loading, getIngredients )
 
-        Decrement ->
-            model - 1
+        IngredientsRequestComplete result ->
+            case result of
+                Ok quote ->
+                    ( Success quote, Cmd.none )
+
+                Err _ ->
+                    ( Failure, Cmd.none )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -59,7 +84,47 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick Decrement ] [ text "-" ]
-        , div [] [ text (String.fromInt model) ]
-        , button [ onClick Increment ] [ text "+" ]
+        [ h2 [] [ text "Random Quotes" ]
+        , viewQuote model
         ]
+
+
+viewQuote : Model -> Html Msg
+viewQuote model =
+    case model of
+        Failure ->
+            div []
+                [ text "Failed to load ingredients"
+                , button [ onClick RetryIngredientsRequest ] [ text "Try Again!" ]
+                ]
+
+        Loading ->
+            text "Loading..."
+
+        Success ingredientsResponse ->
+            ul []
+                (List.map (\ingredient -> li [] [ text ingredient.name ]) ingredientsResponse.ingredients)
+
+
+
+-- HTTP
+
+
+getIngredients : Cmd Msg
+getIngredients =
+    Http.get
+        { url = "http://localhost:8080/ingredients"
+        , expect = Http.expectJson IngredientsRequestComplete ingredientsResponseDecoder
+        }
+
+
+ingredientDecoder : Decoder Ingredient
+ingredientDecoder =
+    Json.Decode.map Ingredient
+        (field "name" string)
+
+
+ingredientsResponseDecoder : Decoder IngredientsResponse
+ingredientsResponseDecoder =
+    Json.Decode.map IngredientsResponse
+        (field "data" (list ingredientDecoder))

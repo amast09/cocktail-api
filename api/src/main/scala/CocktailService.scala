@@ -2,6 +2,7 @@ package cocktail.api
 
 import cats.effect.IO
 
+// TODO: Rename to MixologistService
 trait CocktailService {
   def getIngredients(): IO[List[Ingredient]]
   def getPotentialCocktails(ingredients: List[Ingredient]): IO[List[PotentialCocktail]]

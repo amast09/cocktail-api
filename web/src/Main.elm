@@ -1,8 +1,10 @@
 module Main exposing (main)
 
 import AjaxRequest exposing (AjaxRequest)
+import Api exposing (send, withBasePath)
+import Api.Data exposing (CocktailApiMixologistRoutesIngredientsResponse)
+import Api.Request.Mixologist as MixologistApi
 import Browser
-import Cocktail exposing (IngredientsResponse, ingredientsResponseDecoder)
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
 import Http
@@ -27,14 +29,16 @@ toggleElement elementToToggle setToToggle =
 
 getIngredients : Cmd Msg
 getIngredients =
-    Http.get
-        { url = "http://localhost:8080/ingredients"
-        , expect = Http.expectJson IngredientsRequestComplete ingredientsResponseDecoder
-        }
+    send handleResponse (withBasePath "http://localhost:8080" MixologistApi.apiIngredientsGet)
+
+
+handleResponse : Result Http.Error CocktailApiMixologistRoutesIngredientsResponse -> Msg
+handleResponse result =
+    IngredientsRequestComplete result
 
 
 type alias Model =
-    { ingredientsRequest : AjaxRequest IngredientsResponse
+    { ingredientsRequest : AjaxRequest CocktailApiMixologistRoutesIngredientsResponse
     , checkedIngredients : Set String
     }
 
@@ -85,4 +89,4 @@ view model =
             text "Loading..."
 
         AjaxRequest.Success ingredientsResponse ->
-            div [] (List.map (\i -> IngredientCheckbox.component { ingredient = i, isChecked = isChecked model.checkedIngredients i.name, onCheck = ToggleIngredient }) ingredientsResponse.ingredients)
+            div [] (List.map (\i -> IngredientCheckbox.component { ingredient = i, isChecked = isChecked model.checkedIngredients i.name, onCheck = ToggleIngredient }) ingredientsResponse.data)

@@ -11,9 +11,12 @@
     "build": "vite build",
     "serve": "vite preview",
     "lint": "elm-review",
-    "test": "elm-test-rs"
+    "test": "elm-test-rs",
+    "gen-api-types": "openapi-generator-cli generate -g elm -i http://localhost:8080/openapi.json -o generated",
+    "openapi-version": "openapi-generator-cli version"
   },
   "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.5.2",
     "elm-review": "^2.9.1",
     "elm-tooling": "^1.12.0",
     "vite": "^4.1.4",

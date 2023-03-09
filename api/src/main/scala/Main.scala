@@ -1,6 +1,7 @@
 package cocktail.api
 
 import cats.effect.{IO, IOApp}
+import cats.implicits._
 import com.comcast.ip4s._
 import org.http4s.server.middleware.CORS
 import org.http4s.headers.Origin
@@ -8,6 +9,8 @@ import org.http4s.ember.server.EmberServerBuilder
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
 import org.http4s.Uri
+
+//  TODO: Rename `cocktail.api` => `mixologist`
 
 object Main extends IOApp.Simple {
   val run = RawCocktailData
@@ -19,15 +22,19 @@ object Main extends IOApp.Simple {
         IO.pure(())
       case Valid(cocktailList) =>
         val cocktailService = CocktailServiceFromList(cocktailList)
-        val service = MixologistApiRoutes
-          .cocktailRoutes(cocktailService)
-          .orNotFound
+
+        val mixologistApi = MixologistApi(cocktailService)
+        val apiRoutes     = (mixologistApi.routes <+> MixologistOpenApiDocumentation.route).orNotFound
+
+        // val service = MixologistApiRoutes
+        //   .cocktailRoutes(cocktailService)
+        //   .orNotFound
         val serviceWithCors = CORS.policy.withAllowOriginHost(
           Set(
             Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(5173)),
             Origin.Host(Uri.Scheme.https, Uri.RegName("mixologist.app"), None)
           )
-        )(service)
+        )(apiRoutes)
 
         EmberServerBuilder
           .default[IO]

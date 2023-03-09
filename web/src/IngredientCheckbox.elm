@@ -1,6 +1,6 @@
 module IngredientCheckbox exposing (Props, component)
 
-import Cocktail exposing (Ingredient)
+import Api.Data exposing (CocktailApiIngredient)
 import Html exposing (Html, input, label, text)
 import Html.Attributes exposing (checked, type_)
 import Html.Events exposing (onCheck)
@@ -8,7 +8,7 @@ import Msg exposing (Msg)
 
 
 type alias Props =
-    { ingredient : Ingredient, isChecked : Bool, onCheck : Ingredient -> Msg }
+    { ingredient : CocktailApiIngredient, isChecked : Bool, onCheck : CocktailApiIngredient -> Msg }
 
 
 component : Props -> Html Msg

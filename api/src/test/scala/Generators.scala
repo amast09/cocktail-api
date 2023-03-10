@@ -41,9 +41,9 @@ object Generators {
     dropGen,
     sprigGen,
     pinchGen,
-    Gen.const(Splash()),
-    Gen.const(ToTaste()),
-    Gen.const(TopOff())
+    Gen.const(Splash),
+    Gen.const(ToTaste),
+    Gen.const(TopOff)
   )
 
   val ingredientGen: Gen[Ingredient] = Gen.uuid.map(uuid => Ingredient(uuid.toString()))

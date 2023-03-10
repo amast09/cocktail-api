@@ -8,9 +8,6 @@ val circeVersion  = "0.14.3"
 libraryDependencies ++= Seq(
   "io.circe"                      %% "circe-generic"           % circeVersion,
   "io.circe"                      %% "circe-parser"            % circeVersion,
-  "org.endpoints4s"               %% "algebra"                 % "1.9.0",
-  "org.endpoints4s"               %% "json-schema-generic"     % "1.9.0",
-  "org.endpoints4s"               %% "http4s-server"           % "10.1.0",
   "com.softwaremill.sttp.tapir"   %% "tapir-core"              % "1.2.9",
   "com.softwaremill.sttp.tapir"   %% "tapir-http4s-server"     % "1.2.9",
   "com.softwaremill.sttp.tapir"   %% "tapir-json-circe"        % "1.2.9",

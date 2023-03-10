@@ -12,8 +12,7 @@
     "serve": "vite preview",
     "lint": "elm-review",
     "test": "elm-test-rs",
-    "gen-api-types": "openapi-generator-cli generate -g elm -i openapi.yaml -o generated",
-    "openapi-version": "openapi-generator-cli version"
+    "generate-api-types": "openapi-generator-cli generate -g elm -i ../open-api-spec.yaml -o generated"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.5.2",

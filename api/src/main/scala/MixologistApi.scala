@@ -17,24 +17,7 @@ import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.apispec.openapi.circe.yaml._
 
 case class MixologistApi(mixologistService: MixologistService) {
-  implicit val customConfiguration: Configuration = Configuration.default.withDiscriminator("discriminator")
-
-  implicit val glassSchema: Schema[Glass]    = Schema.derivedEnumeration[Glass].defaultStringBased
-  implicit val glassCodec: PlainCodec[Glass] = Codec.derivedEnumeration[String, Glass].defaultStringBased
-
-  case class IngredientsResponse(data: List[Ingredient])
-  case class PotentialCocktailsJsonPayload(ingredients: List[Ingredient])
-  case class PotentialCocktailsResponse(data: List[PotentialCocktail])
-
-  val getIngredientsEndpoint: PublicEndpoint[Unit, Unit, IngredientsResponse, Any] =
-    endpoint.get.in("ingredients").out(jsonBody[IngredientsResponse])
-
-  val getPotentialCocktailsEndpoint
-    : PublicEndpoint[PotentialCocktailsJsonPayload, Unit, PotentialCocktailsResponse, Any] =
-    endpoint.post
-      .in(jsonBody[PotentialCocktailsJsonPayload])
-      .in("potential-ingredients")
-      .out(jsonBody[PotentialCocktailsResponse])
+  import MixologistApi._
 
   val routes: HttpRoutes[IO] =
     Http4sServerInterpreter[IO]().toRoutes(
@@ -47,11 +30,36 @@ case class MixologistApi(mixologistService: MixologistService) {
         }
       )
     )
+}
 
-  val docsRoute: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "openapi.yaml" =>
-    val docs = OpenAPIDocsInterpreter()
-      .toOpenAPI(List(getIngredientsEndpoint, getPotentialCocktailsEndpoint), "Mixologist", "1.0") // TODO: make not static
-      .toYaml
-    Ok(docs)
+object MixologistApi {
+  implicit val customConfiguration: Configuration = Configuration.default.withDiscriminator("discriminator")
+
+  implicit val glassSchema: Schema[Glass]    = Schema.derivedEnumeration[Glass].defaultStringBased
+  implicit val glassCodec: PlainCodec[Glass] = Codec.derivedEnumeration[String, Glass].defaultStringBased
+
+  case class IngredientsResponse(data: List[Ingredient])
+  case class PotentialCocktailsJsonPayload(ingredients: List[Ingredient])
+  case class PotentialCocktailsResponse(data: List[PotentialCocktail])
+
+  private val getIngredientsEndpoint: PublicEndpoint[Unit, Unit, IngredientsResponse, Any] =
+    endpoint.get.in("ingredients").out(jsonBody[IngredientsResponse])
+
+  private val getPotentialCocktailsEndpoint
+    : PublicEndpoint[PotentialCocktailsJsonPayload, Unit, PotentialCocktailsResponse, Any] =
+    endpoint.post
+      .in(jsonBody[PotentialCocktailsJsonPayload])
+      .in("potential-ingredients")
+      .out(jsonBody[PotentialCocktailsResponse])
+
+  val openApiSpec = OpenAPIDocsInterpreter()
+    .toOpenAPI(
+      List(getIngredientsEndpoint, getPotentialCocktailsEndpoint),
+      "Mixologist",
+      Environment.getFromEnv.apiVersion
+    )
+
+  val docsRoute: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "open-api-spec.yaml" =>
+    Ok(openApiSpec.toYaml)
   }
 }

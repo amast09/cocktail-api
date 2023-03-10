@@ -21,6 +21,12 @@ jobs:
           java-version: "11"
           distribution: "temurin"
           cache: "sbt"
+      - name: Compile Scala Code
+        working-directory: api
+        run: sbt compile
+      - name: Ensure Open API Spec is Up-to-date
+        working-directory: api
+        run: sbt "runMain mixologist.GenerateOpenApiSpec"
       - name: Run tests
         run: sbt test
         working-directory: api

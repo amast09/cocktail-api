@@ -2,15 +2,12 @@ package mixologist
 
 import cats.effect.{IO, IOApp}
 import cats.implicits._
-import com.comcast.ip4s._
 import org.http4s.server.middleware.CORS
 import org.http4s.headers.Origin
 import org.http4s.ember.server.EmberServerBuilder
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
 import org.http4s.Uri
-
-//  TODO: Rename `cocktail.api` => `mixologist`
 
 object Main extends IOApp.Simple {
   val run = RawCocktailData
@@ -24,7 +21,7 @@ object Main extends IOApp.Simple {
         val mixologistService = MixologistServiceFromList(cocktailList)
 
         val mixologistApi = MixologistApi(mixologistService)
-        val apiRoutes     = (mixologistApi.routes <+> mixologistApi.docsRoute).orNotFound
+        val apiRoutes     = (mixologistApi.routes <+> MixologistApi.docsRoute).orNotFound
 
         val serviceWithCors = CORS.policy.withAllowOriginHost(
           Set(
@@ -35,8 +32,8 @@ object Main extends IOApp.Simple {
 
         EmberServerBuilder
           .default[IO]
-          .withHost(ipv4"0.0.0.0")
-          .withPort(port"8080") // TODO: move to config
+          .withHost(Environment.getFromEnv.apiHost)
+          .withPort(Environment.getFromEnv.apiPort)
           .withHttpApp(serviceWithCors)
           .build
           .useForever

@@ -1,0 +1,262 @@
+openapi: 3.0.3
+info:
+  title: Mixologist
+  version: Unknown
+paths:
+  /ingredients:
+    get:
+      operationId: getIngredients
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngredientsResponse'
+  /potential-ingredients:
+    post:
+      operationId: postPotential-ingredients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PotentialCocktailsJsonPayload'
+        required: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PotentialCocktailsResponse'
+        '400':
+          description: 'Invalid value for: body'
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    Amount:
+      oneOf:
+      - $ref: '#/components/schemas/Centiliter'
+      - $ref: '#/components/schemas/Dash'
+      - $ref: '#/components/schemas/Drop'
+      - $ref: '#/components/schemas/Pinch'
+      - $ref: '#/components/schemas/Relative'
+      - $ref: '#/components/schemas/Slice'
+      - $ref: '#/components/schemas/Splash'
+      - $ref: '#/components/schemas/Sprig'
+      - $ref: '#/components/schemas/Teaspoon'
+      - $ref: '#/components/schemas/ToTaste'
+      - $ref: '#/components/schemas/TopOff'
+      discriminator:
+        propertyName: discriminator
+        mapping:
+          Centiliter: '#/components/schemas/Centiliter'
+          Dash: '#/components/schemas/Dash'
+          Drop: '#/components/schemas/Drop'
+          Pinch: '#/components/schemas/Pinch'
+          Relative: '#/components/schemas/Relative'
+          Slice: '#/components/schemas/Slice'
+          Splash: '#/components/schemas/Splash'
+          Sprig: '#/components/schemas/Sprig'
+          Teaspoon: '#/components/schemas/Teaspoon'
+          ToTaste: '#/components/schemas/ToTaste'
+          TopOff: '#/components/schemas/TopOff'
+    Centiliter:
+      required:
+      - quantity
+      - discriminator
+      type: object
+      properties:
+        quantity:
+          type: number
+          format: double
+        discriminator:
+          type: string
+    Cocktail:
+      required:
+      - name
+      - glass
+      - ingredients
+      type: object
+      properties:
+        name:
+          type: string
+        glass:
+          $ref: '#/components/schemas/Glass'
+        ingredients:
+          $ref: '#/components/schemas/NonEmptyList_CocktailIngredient'
+    CocktailIngredient:
+      required:
+      - ingredient
+      - amount
+      type: object
+      properties:
+        ingredient:
+          $ref: '#/components/schemas/Ingredient'
+        amount:
+          $ref: '#/components/schemas/Amount'
+    Dash:
+      required:
+      - quantity
+      - discriminator
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+        discriminator:
+          type: string
+    Drop:
+      required:
+      - quantity
+      - discriminator
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+        discriminator:
+          type: string
+    Glass:
+      type: string
+      enum:
+      - ChampagneFlute
+      - ChampagneTulip
+      - Collins
+      - Highball
+      - HotDrink
+      - Hurricane
+      - Margarita
+      - Martini
+      - OldFashioned
+      - Shot
+      - WhiteWine
+    Ingredient:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+    IngredientsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+    NonEmptyList_CocktailIngredient:
+      required:
+      - head
+      type: object
+      properties:
+        head:
+          $ref: '#/components/schemas/CocktailIngredient'
+        tail:
+          type: array
+          items:
+            $ref: '#/components/schemas/CocktailIngredient'
+    Pinch:
+      required:
+      - quantity
+      - discriminator
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+        discriminator:
+          type: string
+    PotentialCocktail:
+      required:
+      - cocktail
+      type: object
+      properties:
+        cocktail:
+          $ref: '#/components/schemas/Cocktail'
+        missingIngredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+    PotentialCocktailsJsonPayload:
+      type: object
+      properties:
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+    PotentialCocktailsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PotentialCocktail'
+    Relative:
+      required:
+      - quantity
+      - discriminator
+      type: object
+      properties:
+        quantity:
+          type: number
+          format: double
+        discriminator:
+          type: string
+    Slice:
+      required:
+      - quantity
+      - discriminator
+      type: object
+      properties:
+        quantity:
+          type: number
+          format: double
+        discriminator:
+          type: string
+    Splash:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
+    Sprig:
+      required:
+      - quantity
+      - discriminator
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+        discriminator:
+          type: string
+    Teaspoon:
+      required:
+      - quantity
+      - discriminator
+      type: object
+      properties:
+        quantity:
+          type: number
+          format: double
+        discriminator:
+          type: string
+    ToTaste:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
+    TopOff:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string

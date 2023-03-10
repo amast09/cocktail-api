@@ -21,9 +21,9 @@ object Main extends IOApp.Simple {
         println(cocktailDataErrors)
         IO.pure(())
       case Valid(cocktailList) =>
-        val cocktailService = CocktailServiceFromList(cocktailList)
+        val mixologistService = MixologistServiceFromList(cocktailList)
 
-        val mixologistApi = MixologistApi(cocktailService)
+        val mixologistApi = MixologistApi(mixologistService)
         val apiRoutes     = (mixologistApi.routes <+> mixologistApi.docsRoute).orNotFound
 
         val serviceWithCors = CORS.policy.withAllowOriginHost(

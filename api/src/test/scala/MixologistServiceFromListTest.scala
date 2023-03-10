@@ -6,7 +6,7 @@ import cats.data.NonEmptyList
 import scala.util.Random
 import org.scalacheck.effect.PropF
 
-class CocktailServiceTest extends CatsEffectSuite with ScalaCheckEffectSuite {
+class MixologistListFromServiceTest extends CatsEffectSuite with ScalaCheckEffectSuite {
   test("getIngredients returns all cocktail ingredients") {
     PropF.forAllF(
       Generators.cocktailGen,
@@ -18,7 +18,7 @@ class CocktailServiceTest extends CatsEffectSuite with ScalaCheckEffectSuite {
       ) =>
         val expectedIngredients =
           (cocktail1.ingredients ::: cocktail2.ingredients).map(_.ingredient).toList
-        val ingredientsIO = CocktailServiceFromList(List(cocktail1, cocktail2)).getIngredients()
+        val ingredientsIO = MixologistServiceFromList(List(cocktail1, cocktail2)).getIngredients()
 
         ingredientsIO.map { actualIngredients =>
           assertEquals(actualIngredients.length, expectedIngredients.length)
@@ -42,7 +42,7 @@ class CocktailServiceTest extends CatsEffectSuite with ScalaCheckEffectSuite {
           NonEmptyList.fromList(Random.shuffle(ingredientsMissing.toList ++ ingredientsPresent.toList)).get
         val cocktail = baseCocktail.copy(ingredients = allIngredientsForCocktail)
 
-        val potentialCocktailsIO = CocktailServiceFromList(List(cocktail))
+        val potentialCocktailsIO = MixologistServiceFromList(List(cocktail))
           .getPotentialCocktails(ingredientsPresent.map(_.ingredient).toList)
 
         potentialCocktailsIO.map { potentialCocktails =>
@@ -79,7 +79,7 @@ class CocktailServiceTest extends CatsEffectSuite with ScalaCheckEffectSuite {
 
         val expectedOrder = List(cocktail1.name, cocktail2.name, cocktail3.name)
 
-        val potentialCocktailsIO = CocktailServiceFromList(cocktails).getPotentialCocktails(List())
+        val potentialCocktailsIO = MixologistServiceFromList(cocktails).getPotentialCocktails(List())
 
         potentialCocktailsIO.map { potentialCocktails =>
           assertEquals(potentialCocktails.map(_.cocktail.name), expectedOrder)

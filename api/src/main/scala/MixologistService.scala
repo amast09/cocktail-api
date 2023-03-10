@@ -2,8 +2,7 @@ package cocktail.api
 
 import cats.effect.IO
 
-// TODO: Rename to MixologistService
-trait CocktailService {
+trait MixologistService {
   def getIngredients(): IO[List[Ingredient]]
   def getPotentialCocktails(ingredients: List[Ingredient]): IO[List[PotentialCocktail]]
 }
@@ -13,7 +12,7 @@ final case class PotentialCocktail(
   missingIngredients: List[Ingredient]
 )
 
-case class CocktailServiceFromList(cocktails: List[Cocktail]) extends CocktailService {
+case class MixologistServiceFromList(cocktails: List[Cocktail]) extends MixologistService {
   def getIngredients(): IO[List[Ingredient]] =
     IO.pure(
       cocktails

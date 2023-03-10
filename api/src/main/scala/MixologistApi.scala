@@ -16,7 +16,7 @@ import sttp.tapir.generic.Configuration
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.apispec.openapi.circe.yaml._
 
-case class MixologistApi(cocktailService: CocktailService) {
+case class MixologistApi(mixologistService: MixologistService) {
   implicit val customConfiguration: Configuration = Configuration.default.withDiscriminator("discriminator")
 
   implicit val glassSchema: Schema[Glass]    = Schema.derivedEnumeration[Glass].defaultStringBased
@@ -40,20 +40,17 @@ case class MixologistApi(cocktailService: CocktailService) {
     Http4sServerInterpreter[IO]().toRoutes(
       List(
         getIngredientsEndpoint.serverLogic[IO] { _ =>
-          val foo = cocktailService.getIngredients().map(r => Right(IngredientsResponse(r)))
-          foo
+          mixologistService.getIngredients().map(r => Right(IngredientsResponse(r)))
         },
         getPotentialCocktailsEndpoint.serverLogic[IO] { payload =>
-          val foo =
-            cocktailService.getPotentialCocktails(payload.ingredients).map(r => Right(PotentialCocktailsResponse(r)))
-          foo
+          mixologistService.getPotentialCocktails(payload.ingredients).map(r => Right(PotentialCocktailsResponse(r)))
         }
       )
     )
 
   val docsRoute: HttpRoutes[IO] = HttpRoutes.of[IO] { case GET -> Root / "openapi.yaml" =>
     val docs = OpenAPIDocsInterpreter()
-      .toOpenAPI(List(getIngredientsEndpoint, getPotentialCocktailsEndpoint), "Mixologist", "1.0")
+      .toOpenAPI(List(getIngredientsEndpoint, getPotentialCocktailsEndpoint), "Mixologist", "1.0") // TODO: make not static
       .toYaml
     Ok(docs)
   }

@@ -1,4 +1,4 @@
-package cocktail.api
+package mixologist
 
 import io.circe.generic.auto._
 import io.circe.parser._

@@ -1,4 +1,4 @@
-package cocktail.api
+package mixologist
 
 import munit.CatsEffectSuite
 import munit.ScalaCheckEffectSuite

@@ -1,4 +1,4 @@
-package cocktail.api
+package mixologist
 
 import cats.data.NonEmptyList
 

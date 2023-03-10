@@ -1,4 +1,4 @@
-package cocktail.api
+package mixologist
 
 import cats.effect.{IO, IOApp}
 import cats.implicits._

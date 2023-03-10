@@ -1,4 +1,4 @@
-package cocktail.api
+package mixologist
 
 import org.scalacheck.Gen
 import cats.data.NonEmptyList

@@ -2,8 +2,8 @@ module Main exposing (main)
 
 import AjaxRequest exposing (AjaxRequest)
 import Api exposing (send, withBasePath)
-import Api.Data exposing (CocktailApiMixologistRoutesIngredientsResponse)
-import Api.Request.Mixologist as MixologistApi
+import Api.Data exposing (Ingredient, IngredientsResponse)
+import Api.Request.Default as MixologistApi
 import Browser
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
@@ -29,16 +29,16 @@ toggleElement elementToToggle setToToggle =
 
 getIngredients : Cmd Msg
 getIngredients =
-    send handleResponse (withBasePath "http://localhost:8080" MixologistApi.apiIngredientsGet)
+    send handleResponse (withBasePath "http://localhost:8080" MixologistApi.getIngredients)
 
 
-handleResponse : Result Http.Error CocktailApiMixologistRoutesIngredientsResponse -> Msg
+handleResponse : Result Http.Error IngredientsResponse -> Msg
 handleResponse result =
     IngredientsRequestComplete result
 
 
 type alias Model =
-    { ingredientsRequest : AjaxRequest CocktailApiMixologistRoutesIngredientsResponse
+    { ingredientsRequest : AjaxRequest (List Ingredient)
     , checkedIngredients : Set String
     }
 
@@ -66,8 +66,13 @@ update msg model =
 
         IngredientsRequestComplete result ->
             case result of
-                Ok ingredients ->
-                    ( { ingredientsRequest = AjaxRequest.Success ingredients, checkedIngredients = Set.empty }, Cmd.none )
+                Ok ingredientsResponse ->
+                    case ingredientsResponse.data of
+                        Just ingredients ->
+                            ( { ingredientsRequest = AjaxRequest.Success ingredients, checkedIngredients = Set.empty }, Cmd.none )
+
+                        Nothing ->
+                            ( { ingredientsRequest = AjaxRequest.Failure, checkedIngredients = Set.empty }, Cmd.none )
 
                 Err _ ->
                     ( { ingredientsRequest = AjaxRequest.Failure, checkedIngredients = Set.empty }, Cmd.none )
@@ -88,5 +93,5 @@ view model =
         AjaxRequest.Loading ->
             text "Loading..."
 
-        AjaxRequest.Success ingredientsResponse ->
-            div [] (List.map (\i -> IngredientCheckbox.component { ingredient = i, isChecked = isChecked model.checkedIngredients i.name, onCheck = ToggleIngredient }) ingredientsResponse.data)
+        AjaxRequest.Success ingredients ->
+            div [] (List.map (\i -> IngredientCheckbox.component { ingredient = i, isChecked = isChecked model.checkedIngredients i.name, onCheck = ToggleIngredient }) ingredients)

@@ -1,10 +1,10 @@
 module Msg exposing (Msg(..))
 
-import Api.Data exposing (CocktailApiIngredient, CocktailApiMixologistRoutesIngredientsResponse)
+import Api.Data exposing (Ingredient, IngredientsResponse)
 import Http
 
 
 type Msg
     = IngredientsRequestRetry
-    | IngredientsRequestComplete (Result Http.Error CocktailApiMixologistRoutesIngredientsResponse)
-    | ToggleIngredient CocktailApiIngredient
+    | IngredientsRequestComplete (Result Http.Error IngredientsResponse)
+    | ToggleIngredient Ingredient

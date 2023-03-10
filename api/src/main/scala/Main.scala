@@ -23,8 +23,10 @@ object Main extends IOApp.Simple {
       case Valid(cocktailList) =>
         val cocktailService = CocktailServiceFromList(cocktailList)
 
-        val mixologistApi = MixologistApi(cocktailService)
-        val apiRoutes     = (mixologistApi.routes <+> MixologistOpenApiDocumentation.route).orNotFound
+        val mixologistApi  = MixologistApi(cocktailService)
+        val mixologistApi2 = MixologistApi2(cocktailService)
+        val apiRoutes      = (mixologistApi.routes <+> MixologistOpenApiDocumentation.route).orNotFound
+        val apiRoutes2     = (mixologistApi2.routes <+> mixologistApi2.docsRoute).orNotFound
 
         // val service = MixologistApiRoutes
         //   .cocktailRoutes(cocktailService)
@@ -34,7 +36,7 @@ object Main extends IOApp.Simple {
             Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(5173)),
             Origin.Host(Uri.Scheme.https, Uri.RegName("mixologist.app"), None)
           )
-        )(apiRoutes)
+        )(apiRoutes2)
 
         EmberServerBuilder
           .default[IO]

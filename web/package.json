@@ -12,7 +12,7 @@
     "serve": "vite preview",
     "lint": "elm-review",
     "test": "elm-test-rs",
-    "gen-api-types": "openapi-generator-cli generate -g elm -i http://localhost:8080/openapi.json -o generated",
+    "gen-api-types": "openapi-generator-cli generate -g elm -i openapi.yaml -o generated",
     "openapi-version": "openapi-generator-cli version"
   },
   "devDependencies": {

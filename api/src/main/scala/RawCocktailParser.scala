@@ -43,17 +43,17 @@ final case class RawCocktailIngredient(ingredient: String, unit: String, amount:
       case "pinch"    => maybeAmount.flatMap(intFromDouble).map(Pinch)
       case "splash" =>
         this.amount match {
-          case None    => Right(Splash())
+          case None    => Right(Splash)
           case Some(_) => Left(InvalidAmountSpecification(this))
         }
       case "totaste" =>
         this.amount match {
-          case None    => Right(ToTaste())
+          case None    => Right(ToTaste)
           case Some(_) => Left(InvalidAmountSpecification(this))
         }
       case "topoff" =>
         this.amount match {
-          case None    => Right(TopOff())
+          case None    => Right(TopOff)
           case Some(_) => Left(InvalidAmountSpecification(this))
         }
       case _ => Left(InvalidUnit(this))

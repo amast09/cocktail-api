@@ -24,9 +24,11 @@ case class Dash(quantity: Int)          extends Amount
 case class Drop(quantity: Int)          extends Amount
 case class Sprig(quantity: Int)         extends Amount
 case class Pinch(quantity: Int)         extends Amount
-case class Splash()                     extends Amount
-case class ToTaste()                    extends Amount
-case class TopOff()                     extends Amount
+
+sealed trait AmountNoParams extends Amount
+case object Splash          extends AmountNoParams
+case object ToTaste         extends AmountNoParams
+case object TopOff          extends AmountNoParams
 
 final case class Ingredient(name: String)
 

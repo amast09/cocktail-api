@@ -38,6 +38,6 @@ case class MixologistServiceFromList(cocktails: List[Cocktail]) extends Mixologi
       }
       .sortBy(potentialCocktail => potentialCocktail.missingIngredients.length)
 
-    IO.pure(potentialCocktails)
+    IO.pure(List(potentialCocktails.head))
   }
 }

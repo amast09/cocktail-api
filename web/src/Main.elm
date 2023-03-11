@@ -2,40 +2,15 @@ module Main exposing (main)
 
 import AjaxRequest exposing (AjaxRequest)
 import Api exposing (send, withBasePath)
-import Api.Data exposing (Ingredient, PotentialCocktail, PotentialCocktailsJsonPayload)
+import Api.Data exposing (CocktailIngredient, Ingredient, PotentialCocktail, PotentialCocktailsJsonPayload)
 import Api.Request.Default as MixologistApi
 import Browser
-import Html exposing (Html, button, div, text)
+import Html exposing (Html, button, div, h3, label, li, p, text, ul)
 import Html.Events exposing (onClick)
 import Http exposing (..)
 import IngredientCheckbox
 import Msg exposing (Msg(..))
 import Set exposing (Set(..))
-
-
-errorToString : Http.Error -> String
-errorToString error =
-    case error of
-        BadUrl url ->
-            "The URL " ++ url ++ " was invalid"
-
-        Timeout ->
-            "Unable to reach the server, try again"
-
-        NetworkError ->
-            "Unable to reach the server, check your network connection"
-
-        BadStatus 500 ->
-            "The server had a problem, try again later"
-
-        BadStatus 400 ->
-            "Verify your information and try again"
-
-        BadStatus _ ->
-            "Unknown error"
-
-        BadBody errorMessage ->
-            errorMessage
 
 
 apiBasePath : String
@@ -64,7 +39,7 @@ getIngredients =
 
 getPotentialCocktails : PotentialCocktailsJsonPayload -> Cmd Msg
 getPotentialCocktails payload =
-    send PotentialCocktailsRequestComplete (withBasePath apiBasePath (MixologistApi.postPotentialIngredients payload))
+    send PotentialCocktailsRequestComplete (withBasePath apiBasePath (MixologistApi.postPotentialCocktails payload))
 
 
 type alias Model =
@@ -89,30 +64,87 @@ subscriptions _ =
     Sub.none
 
 
+renderIngredient : Ingredient -> Html Msg
+renderIngredient ingredient =
+    li [] [ p [] [ text ingredient.name ] ]
+
+
+renderCocktailIngredient : CocktailIngredient -> Html Msg
+renderCocktailIngredient cocktailIngredient =
+    li [] [ label [] [ text cocktailIngredient.ingredient.name ], p [] [ text "TODO: Add Amount here" ] ]
+
+
+renderPotentialCocktail : PotentialCocktail -> Html Msg
+renderPotentialCocktail p =
+    div []
+        [ h3 [] [ text p.cocktail.name ]
+        , label [] [ text "Ingredients" ]
+        , ul []
+            (case p.cocktail.ingredients of
+                Just ingredients ->
+                    List.map renderCocktailIngredient ingredients
+
+                Nothing ->
+                    [ text "" ]
+            )
+        , label [] [ text ("Missing Ingredients - " ++ Maybe.withDefault "0" (Maybe.map (\missingIngredients -> String.fromInt (List.length missingIngredients)) p.missingIngredients)) ]
+        , ul []
+            (case p.missingIngredients of
+                Just ingredients ->
+                    List.map renderIngredient ingredients
+
+                Nothing ->
+                    [ text "" ]
+            )
+        ]
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         IngredientsRequestRetry ->
-            ( { ingredientsRequest = AjaxRequest.Loading, checkedIngredients = Set.empty, maybePotentialIngredientsRequest = Nothing }, getIngredients )
+            ( { ingredientsRequest = AjaxRequest.Loading
+              , checkedIngredients = Set.empty
+              , maybePotentialIngredientsRequest = Nothing
+              }
+            , getIngredients
+            )
 
         IngredientsRequestComplete result ->
             case result of
                 Ok ingredientsResponse ->
                     case ingredientsResponse.data of
                         Just ingredients ->
-                            ( { ingredientsRequest = AjaxRequest.Success ingredients, checkedIngredients = Set.empty, maybePotentialIngredientsRequest = Nothing }, Cmd.none )
+                            ( { ingredientsRequest = AjaxRequest.Success ingredients
+                              , checkedIngredients = Set.empty
+                              , maybePotentialIngredientsRequest = Nothing
+                              }
+                            , Cmd.none
+                            )
 
                         Nothing ->
-                            ( { ingredientsRequest = AjaxRequest.Failure, checkedIngredients = Set.empty, maybePotentialIngredientsRequest = Nothing }, Cmd.none )
+                            ( { ingredientsRequest = AjaxRequest.Failure
+                              , checkedIngredients = Set.empty
+                              , maybePotentialIngredientsRequest = Nothing
+                              }
+                            , Cmd.none
+                            )
 
                 Err _ ->
-                    ( { ingredientsRequest = AjaxRequest.Failure, checkedIngredients = Set.empty, maybePotentialIngredientsRequest = Nothing }, Cmd.none )
+                    ( { ingredientsRequest = AjaxRequest.Failure
+                      , checkedIngredients = Set.empty
+                      , maybePotentialIngredientsRequest = Nothing
+                      }
+                    , Cmd.none
+                    )
 
         ToggleIngredient toggledIngredient ->
             ( { model | checkedIngredients = toggleElement toggledIngredient.name model.checkedIngredients }, Cmd.none )
 
         PotentialCocktailsRequestSubmitted ->
-            ( { model | maybePotentialIngredientsRequest = Just AjaxRequest.Loading }, getPotentialCocktails (PotentialCocktailsJsonPayload (Just (List.map Ingredient (Set.toList model.checkedIngredients)))) )
+            ( { model | maybePotentialIngredientsRequest = Just AjaxRequest.Loading }
+            , getPotentialCocktails (PotentialCocktailsJsonPayload (Just (List.map Ingredient (Set.toList model.checkedIngredients))))
+            )
 
         PotentialCocktailsRequestComplete result ->
             case result of
@@ -124,13 +156,7 @@ update msg model =
                         Nothing ->
                             ( { model | maybePotentialIngredientsRequest = Just AjaxRequest.Failure }, Cmd.none )
 
-                Err error ->
-                    -- TODO: Currently failing due to NonEmptyList runtime decoding differing from what is output by
-                    --  generated openapispec, look to define custom decoder for NEL
-                    let
-                        _ =
-                            Debug.log "error" (errorToString error)
-                    in
+                Err _ ->
                     ( { model | maybePotentialIngredientsRequest = Just AjaxRequest.Failure }, Cmd.none )
 
 
@@ -171,5 +197,5 @@ view model =
                         text "Loading potential cocktails..."
 
                     AjaxRequest.Success potentialCocktails ->
-                        text "potential cocktails loaded"
+                        div [] (List.map renderPotentialCocktail potentialCocktails)
         ]

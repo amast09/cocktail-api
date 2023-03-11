@@ -1,20 +1,19 @@
 package mixologist
 
-import cats.effect.IO
+import cats.data.NonEmptyList
 import org.http4s.HttpRoutes
 import org.http4s.dsl.io._
-
-import sttp.tapir.{endpoint, Codec, PublicEndpoint}
+import io.circe.generic.extras.{Configuration => CirceConfiguration}
+import io.circe.generic.extras.auto._
+import sttp.tapir.{endpoint, PublicEndpoint}
 import sttp.tapir._
-import sttp.tapir.Codec.PlainCodec
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.Http4sServerInterpreter
-import io.circe.generic.auto._
 import sttp.tapir.generic.auto._
 import sttp.tapir.generic.Configuration
-
 import sttp.tapir.docs.openapi.OpenAPIDocsInterpreter
 import sttp.apispec.openapi.circe.yaml._
+import cats.effect.IO
 
 case class MixologistApi(mixologistService: MixologistService) {
   import MixologistApi._
@@ -33,10 +32,12 @@ case class MixologistApi(mixologistService: MixologistService) {
 }
 
 object MixologistApi {
-  implicit val customConfiguration: Configuration = Configuration.default.withDiscriminator("discriminator")
+  private val DISCRIMINATOR                       = "discriminator"
+  implicit val config: CirceConfiguration         = CirceConfiguration.default.copy(discriminator = Some(DISCRIMINATOR))
+  implicit val customConfiguration: Configuration = Configuration.default.withDiscriminator(DISCRIMINATOR)
 
-  implicit val glassSchema: Schema[Glass]    = Schema.derivedEnumeration[Glass].defaultStringBased
-  implicit val glassCodec: PlainCodec[Glass] = Codec.derivedEnumeration[String, Glass].defaultStringBased
+  implicit def schemaForNonEmptyList[V](implicit s: Schema[List[V]]): Schema[NonEmptyList[V]] =
+    s.map(NonEmptyList.fromList)(_.toList)
 
   case class IngredientsResponse(data: List[Ingredient])
   case class PotentialCocktailsJsonPayload(ingredients: List[Ingredient])
@@ -49,7 +50,7 @@ object MixologistApi {
     : PublicEndpoint[PotentialCocktailsJsonPayload, Unit, PotentialCocktailsResponse, Any] =
     endpoint.post
       .in(jsonBody[PotentialCocktailsJsonPayload])
-      .in("potential-ingredients")
+      .in("potential-cocktails")
       .out(jsonBody[PotentialCocktailsResponse])
 
   val openApiSpec = OpenAPIDocsInterpreter()

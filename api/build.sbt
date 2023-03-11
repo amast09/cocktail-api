@@ -7,6 +7,7 @@ val circeVersion  = "0.14.3"
 
 libraryDependencies ++= Seq(
   "io.circe"                      %% "circe-generic"           % circeVersion,
+  "io.circe"                      %% "circe-generic-extras"    % circeVersion,
   "io.circe"                      %% "circe-parser"            % circeVersion,
   "com.softwaremill.sttp.tapir"   %% "tapir-core"              % "1.2.9",
   "com.softwaremill.sttp.tapir"   %% "tapir-http4s-server"     % "1.2.9",

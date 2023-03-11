@@ -13,9 +13,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IngredientsResponse'
-  /potential-ingredients:
+  /potential-cocktails:
     post:
-      operationId: postPotential-ingredients
+      operationId: postPotential-cocktails
       requestBody:
         content:
           application/json:
@@ -75,11 +75,24 @@ components:
           format: double
         discriminator:
           type: string
+    ChampagneFlute:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
+    ChampagneTulip:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
     Cocktail:
       required:
       - name
       - glass
-      - ingredients
       type: object
       properties:
         name:
@@ -87,7 +100,9 @@ components:
         glass:
           $ref: '#/components/schemas/Glass'
         ingredients:
-          $ref: '#/components/schemas/NonEmptyList_CocktailIngredient'
+          type: array
+          items:
+            $ref: '#/components/schemas/CocktailIngredient'
     CocktailIngredient:
       required:
       - ingredient
@@ -98,6 +113,13 @@ components:
           $ref: '#/components/schemas/Ingredient'
         amount:
           $ref: '#/components/schemas/Amount'
+    Collins:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
     Dash:
       required:
       - quantity
@@ -121,19 +143,53 @@ components:
         discriminator:
           type: string
     Glass:
-      type: string
-      enum:
-      - ChampagneFlute
-      - ChampagneTulip
-      - Collins
-      - Highball
-      - HotDrink
-      - Hurricane
-      - Margarita
-      - Martini
-      - OldFashioned
-      - Shot
-      - WhiteWine
+      oneOf:
+      - $ref: '#/components/schemas/ChampagneFlute'
+      - $ref: '#/components/schemas/ChampagneTulip'
+      - $ref: '#/components/schemas/Collins'
+      - $ref: '#/components/schemas/Highball'
+      - $ref: '#/components/schemas/HotDrink'
+      - $ref: '#/components/schemas/Hurricane'
+      - $ref: '#/components/schemas/Margarita'
+      - $ref: '#/components/schemas/Martini'
+      - $ref: '#/components/schemas/OldFashioned'
+      - $ref: '#/components/schemas/Shot'
+      - $ref: '#/components/schemas/WhiteWine'
+      discriminator:
+        propertyName: discriminator
+        mapping:
+          ChampagneFlute: '#/components/schemas/ChampagneFlute'
+          ChampagneTulip: '#/components/schemas/ChampagneTulip'
+          Collins: '#/components/schemas/Collins'
+          Highball: '#/components/schemas/Highball'
+          HotDrink: '#/components/schemas/HotDrink'
+          Hurricane: '#/components/schemas/Hurricane'
+          Margarita: '#/components/schemas/Margarita'
+          Martini: '#/components/schemas/Martini'
+          OldFashioned: '#/components/schemas/OldFashioned'
+          Shot: '#/components/schemas/Shot'
+          WhiteWine: '#/components/schemas/WhiteWine'
+    Highball:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
+    HotDrink:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
+    Hurricane:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
     Ingredient:
       required:
       - name
@@ -148,17 +204,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Ingredient'
-    NonEmptyList_CocktailIngredient:
+    Margarita:
       required:
-      - head
+      - discriminator
       type: object
       properties:
-        head:
-          $ref: '#/components/schemas/CocktailIngredient'
-        tail:
-          type: array
-          items:
-            $ref: '#/components/schemas/CocktailIngredient'
+        discriminator:
+          type: string
+    Martini:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
+    OldFashioned:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
     Pinch:
       required:
       - quantity
@@ -204,6 +270,13 @@ components:
         quantity:
           type: number
           format: double
+        discriminator:
+          type: string
+    Shot:
+      required:
+      - discriminator
+      type: object
+      properties:
         discriminator:
           type: string
     Slice:
@@ -254,6 +327,13 @@ components:
         discriminator:
           type: string
     TopOff:
+      required:
+      - discriminator
+      type: object
+      properties:
+        discriminator:
+          type: string
+    WhiteWine:
       required:
       - discriminator
       type: object

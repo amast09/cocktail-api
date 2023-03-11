@@ -2,15 +2,19 @@ module Main exposing (main)
 
 import AjaxRequest exposing (AjaxRequest)
 import Api exposing (send, withBasePath)
-import Api.Data exposing (Ingredient, IngredientsResponse)
+import Api.Data exposing (Ingredient, PotentialCocktailsJsonPayload)
 import Api.Request.Default as MixologistApi
 import Browser
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
-import Http
 import IngredientCheckbox
 import Msg exposing (Msg(..))
 import Set exposing (Set(..))
+
+
+apiBasePath : String
+apiBasePath =
+    "http://localhost:8080"
 
 
 isChecked : Set String -> String -> Bool
@@ -29,12 +33,12 @@ toggleElement elementToToggle setToToggle =
 
 getIngredients : Cmd Msg
 getIngredients =
-    send handleResponse (withBasePath "http://localhost:8080" MixologistApi.getIngredients)
+    send IngredientsRequestComplete (withBasePath apiBasePath MixologistApi.getIngredients)
 
 
-handleResponse : Result Http.Error IngredientsResponse -> Msg
-handleResponse result =
-    IngredientsRequestComplete result
+getPotentialCocktails : PotentialCocktailsJsonPayload -> Cmd Msg
+getPotentialCocktails payload =
+    send PotentialCocktailsRequestComplete (withBasePath apiBasePath (MixologistApi.postPotentialIngredients payload))
 
 
 type alias Model =
@@ -61,6 +65,9 @@ subscriptions _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        PotentialCocktailsRequestComplete _ ->
+            ( model, Cmd.none )
+
         IngredientsRequestRetry ->
             ( { ingredientsRequest = AjaxRequest.Loading, checkedIngredients = Set.empty }, getIngredients )
 
@@ -80,6 +87,9 @@ update msg model =
         ToggleIngredient toggledIngredient ->
             ( { model | checkedIngredients = toggleElement toggledIngredient.name model.checkedIngredients }, Cmd.none )
 
+        PotentialCocktailsRequestSubmitted ->
+            ( model, getPotentialCocktails (PotentialCocktailsJsonPayload (Just (List.map Ingredient (Set.toList model.checkedIngredients)))) )
+
 
 view : Model -> Html Msg
 view model =
@@ -94,4 +104,10 @@ view model =
             text "Loading..."
 
         AjaxRequest.Success ingredients ->
-            div [] (List.map (\i -> IngredientCheckbox.component { ingredient = i, isChecked = isChecked model.checkedIngredients i.name, onCheck = ToggleIngredient }) ingredients)
+            div []
+                [ div []
+                    (List.map (\i -> IngredientCheckbox.component { ingredient = i, isChecked = isChecked model.checkedIngredients i.name, onCheck = ToggleIngredient }) ingredients)
+                , button
+                    [ onClick PotentialCocktailsRequestSubmitted ]
+                    [ text "Find Cocktails" ]
+                ]

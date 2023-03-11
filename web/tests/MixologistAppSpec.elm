@@ -1,6 +1,6 @@
 module MixologistAppSpec exposing (suite)
 
-import Expect as Expect
+import Expect
 import Test exposing (Test)
 
 

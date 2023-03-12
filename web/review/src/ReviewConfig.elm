@@ -33,13 +33,12 @@ import Review.Rule as Rule exposing (Rule)
 import Simplify
 
 
-config : List Rule
-config =
-    [ Docs.ReviewAtDocs.rule
+configWithGeneratedIgnores : List Rule
+configWithGeneratedIgnores = 
+    List.map (\r -> Rule.ignoreErrorsForDirectories ["generated/"] r) [
+        Docs.ReviewAtDocs.rule
     , NoConfusingPrefixOperator.rule
     , NoDebug.Log.rule
-    , NoDebug.TodoOrToString.rule
-        |> Rule.ignoreErrorsForDirectories [ "tests/" ]
     , NoExposingEverything.rule
     , NoImportingEverything.rule []
     , NoMissingTypeAnnotation.rule
@@ -56,3 +55,13 @@ config =
     , NoUnused.Variables.rule
     , Simplify.rule Simplify.defaults
     ]
+
+configWithTestAndGeneratedIgnores : List Rule
+configWithTestAndGeneratedIgnores = 
+    List.map (\r -> Rule.ignoreErrorsForDirectories ["tests/", "generated/"] r) [
+        NoDebug.TodoOrToString.rule
+    ]
+
+config : List Rule
+config =
+    configWithTestAndGeneratedIgnores ++ configWithGeneratedIgnores

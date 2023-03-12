@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (Model, main)
 
 import AjaxRequest exposing (AjaxRequest)
 import Api exposing (send, withBasePath)
@@ -7,10 +7,9 @@ import Api.Request.Default as MixologistApi
 import Browser
 import Html exposing (Html, button, div, h3, label, li, p, text, ul)
 import Html.Events exposing (onClick)
-import Http exposing (..)
 import IngredientCheckbox
 import Msg exposing (Msg(..))
-import Set exposing (Set(..))
+import Set exposing (Set)
 
 
 apiBasePath : String

@@ -2,7 +2,14 @@ module Main exposing (Model, main)
 
 import AjaxRequest exposing (AjaxRequest)
 import Api exposing (send, withBasePath)
-import Api.Data exposing (CocktailIngredient, Ingredient, PotentialCocktail, PotentialCocktailsJsonPayload)
+import Api.Data
+    exposing
+        ( Amount(..)
+        , CocktailIngredient
+        , Ingredient
+        , PotentialCocktail
+        , PotentialCocktailsJsonPayload
+        )
 import Api.Request.Default as MixologistApi
 import Browser
 import Html exposing (Html, button, div, h3, label, li, p, text, ul)
@@ -63,6 +70,47 @@ subscriptions _ =
     Sub.none
 
 
+
+-- TODO: Make this less naive
+
+
+renderAmount : Amount -> Html Msg
+renderAmount amount =
+    case amount of
+        AmountCentiliter centiliter ->
+            text ("centiliter(s)" ++ String.fromFloat centiliter.quantity)
+
+        AmountRelative relative ->
+            text ("parts(s)" ++ String.fromFloat relative.quantity)
+
+        AmountTeaspoon teaspoon ->
+            text ("teaspoon(s)" ++ String.fromFloat teaspoon.quantity)
+
+        AmountSlice slice ->
+            text ("slice(s)" ++ String.fromFloat slice.quantity)
+
+        AmountDash dash ->
+            text ("dash(s)" ++ String.fromInt dash.quantity)
+
+        AmountDrop drop ->
+            text ("drop(s)" ++ String.fromInt drop.quantity)
+
+        AmountPinch pinch ->
+            text ("pinch(s)" ++ String.fromInt pinch.quantity)
+
+        AmountSprig sprig ->
+            text ("sprig(s)" ++ String.fromInt sprig.quantity)
+
+        AmountSplash _ ->
+            text "splash"
+
+        AmountToTaste _ ->
+            text "To Taste"
+
+        AmountTopOff _ ->
+            text "Top Off"
+
+
 renderIngredient : Ingredient -> Html Msg
 renderIngredient ingredient =
     li [] [ p [] [ text ingredient.name ] ]
@@ -70,7 +118,7 @@ renderIngredient ingredient =
 
 renderCocktailIngredient : CocktailIngredient -> Html Msg
 renderCocktailIngredient cocktailIngredient =
-    li [] [ label [] [ text cocktailIngredient.ingredient.name ], p [] [ text "TODO: Add Amount here" ] ]
+    li [] [ label [] [ text cocktailIngredient.ingredient.name ], p [] [ renderAmount cocktailIngredient.amount ] ]
 
 
 renderPotentialCocktail : PotentialCocktail -> Html Msg

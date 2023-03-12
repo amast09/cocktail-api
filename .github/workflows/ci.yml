@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: web
+      - name: Generate API Types
+        run: npm run generate-api-types
+        working-directory: web
       - run: npm run lint
         working-directory: web
       - run: npm test

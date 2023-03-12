@@ -25,7 +25,11 @@ jobs:
         working-directory: api
         run: |
           mv ../open-api-spec.yaml ../original-open-api-spec.yaml
-          MIXOLOGIST_API_VERSION=$(sbt -Dsbt.supershell=false -Dsbt.log.noformat=true -error "print version") sbt "runMain mixologist.GenerateOpenApiSpec"
+          sbt compile
+          export MIXOLOGIST_API_VERSION=$(sbt -Dsbt.ci=true -Dsbt.supershell=false -Dsbt.log.noformat=true -error "print version")
+          sbt "runMain mixologist.GenerateOpenApiSpec"
+          cat ../original-open-api-spec.yaml
+          cat ../open-api-spec.yaml
           diff -q ../open-api-spec.yaml ../original-open-api-spec.yaml
       - name: Run tests
         run: sbt test
